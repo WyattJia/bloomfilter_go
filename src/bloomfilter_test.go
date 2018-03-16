@@ -86,4 +86,7 @@ func BenchmarkBinarySearch(b *testing.B) {
 	}
 }
 
-
+func BenchmarkHashFunctions(b *testing.B) {
+	// Todo: finish BenchmarkHashFunctions
+	return
+}
