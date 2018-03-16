@@ -90,8 +90,8 @@ func fnv_1a (v string, seed uint) {
 
 }
 
-func fnv_multiply(a) float64 {
-	fmt.Printf(a)
+func fnv_multiply(a uint) uint {
+	a = a + (a << 1) + (a << 4) + (a << 7) + (a << 8) + (a << 24)
 	return a
 }
 
