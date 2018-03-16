@@ -2,12 +2,14 @@ package bloomfilter
 
 import (
 	"fmt"
+	"github.com/Go-zh/tools/go/analysis/passes/vet/testdata/divergent"
+	"github.com/boltdb/bolt"
 	"hash/fnv"
 
 	//_ "hash"
 	//"hash/fnv"
 	//_ "hash/fnv"
-	"math"
+	. "math"
 )
 
 type Interface interface {
@@ -18,6 +20,7 @@ type Interface interface {
 type BloomFilter struct {
 	arrayBuffer []bool
 	_locations  []uint
+	bucket 		[]uint
 	m 			uint
 	k           uint
 	n           uint
@@ -28,15 +31,17 @@ type BloomFilter struct {
 
 func New(size uint, k uint) BloomFilter {
 
-	//var n = math.Ceil(float64(size) / 32)
-	var kbytes = math.Ceil(math.Log(math.Ceil(math.Log(float64(size)) / math.Ln2 / 8)) / math.Ln2)
+	var n = Ceil(float64(size) / 32)
+	var kbytes = Ceil(Log(Ceil(Log(float64(size)) /Ln2/ 8)) / Ln2)
 	kbytes = 1 << uint(kbytes)
 	var arrayBuffer = make([]bool, uint(kbytes) * k)
 	//var bucket = [uint(n)]int{}
+	var bucket = make([]uint, n)
 	var _locations = make([]uint, k)
 	return BloomFilter{
 		arrayBuffer: arrayBuffer,
 		_locations:  _locations,
+		bucket:		 bucket,
 		m:           size,
 		k:           k, // we have 3 hash functions for now
 		n:           uint(0),
@@ -65,9 +70,13 @@ func (bf BloomFilter) locations(v string) []uint {
 	return r
 }
 
-func (bf BloomFilter) add(v) float64 {
-	fmt.Printf(v)
-	return v
+func (bf BloomFilter) add(v string) {
+	var l = bf.locations(v + "")
+	k = bf.k
+	bucket = bf.bucket
+	for i = 0; i < k; i++ {
+		bucket[Floor(float64(l[i]/32))] |= 1 << (l[i] % 32)
+	}
 }
 
 func (bf BloomFilter) test(v) float64 {
