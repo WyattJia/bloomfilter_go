@@ -65,8 +65,10 @@ func (bf BloomFilter) size(v) float64  {
 	return v
 }
 
-func popcnt (v) {
-	fmt.Printf(v)
+func popcnt (uint v) uint {
+	v -= (v >> 1) & 0x55555555
+	v = (v & 0x33333333) + ((v >> 2) & 0x33333333)
+	return ((v + (v >> 4) & 0xf0f0f0f) * 0x1010101) >> 24
 }
 
 
