@@ -2,6 +2,7 @@ package bloomfilter
 
 import (
 	"fmt"
+	"github.com/Go-zh/net/html/atom"
 	"github.com/Go-zh/tools/go/analysis/passes/vet/testdata/divergent"
 	"github.com/boltdb/bolt"
 	"hash/fnv"
@@ -79,9 +80,17 @@ func (bf BloomFilter) add(v string) {
 	}
 }
 
-func (bf BloomFilter) test(v) float64 {
-	fmt.Printf(v)
-	return v
+func (bf BloomFilter) test(v string) bool {
+	var l = bf.locations(v + "")
+	var k = bf.k
+	var bucket = bf.bucket
+	for i = 0; i < k; i++{
+		var b = l[i]
+		if (bucket[int(Floor(float64(b/32)))] & (1 << (b % 32))) == 0 {
+			return false
+		}
+	}
+	return true
 }
 
 func (bf BloomFilter) size(v) float64  {
