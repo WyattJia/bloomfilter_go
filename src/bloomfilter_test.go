@@ -46,3 +46,10 @@ func TestExistance(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkAdd(b *testing.B) {
+	bf := New(MemberSize, DefaultHashFunctions)
+	for i := 0; i < b.N; i++ {
+		bf.Add(RandomString())
+	}
+}
