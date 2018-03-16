@@ -21,16 +21,15 @@ type BloomFilter struct {
 	v           uint
 }
 
-func New(size uint, k uint) BloomFilter {
+func New(size uint, k uint) *BloomFilter {
 
 	var n = Ceil(float64(size) / 32)
 	var kbytes = Ceil(Log(Ceil(Log(float64(size)) /Ln2/ 8)) / Ln2)
 	kbytes = 1 << uint(kbytes)
 	var arrayBuffer = make([]bool, uint(kbytes) * k)
-	//var bucket = [uint(n)]int{}
 	var bucket = make([]uint, n)
 	var _locations = make([]uint, k)
-	return BloomFilter{
+	return &BloomFilter{
 		arrayBuffer: arrayBuffer,
 		_locations:  _locations,
 		bucket:		 bucket,
@@ -41,7 +40,7 @@ func New(size uint, k uint) BloomFilter {
 	}
 }
 
-func (bf BloomFilter) Locations(v string) []uint {
+func (bf *BloomFilter) Locations(v string) []uint {
 	
 	var k = bf.k
 	var m = bf.m
@@ -62,7 +61,7 @@ func (bf BloomFilter) Locations(v string) []uint {
 	return r
 }
 
-func (bf BloomFilter) Add(v string) {
+func (bf *BloomFilter) Add(v string) {
 	var l = bf.Locations(v + "")
 	var k = bf.k
 	var bucket = bf.bucket
@@ -72,7 +71,7 @@ func (bf BloomFilter) Add(v string) {
 	}
 }
 
-func (bf BloomFilter) Test(v string) bool {
+func (bf *BloomFilter) Test(v string) bool {
 	var l = bf.Locations(v + "")
 	var k = bf.k
 	var bucket = bf.bucket
@@ -86,7 +85,7 @@ func (bf BloomFilter) Test(v string) bool {
 	return true
 }
 
-func (bf BloomFilter) Size() float64  {
+func (bf *BloomFilter) Size() float64  {
 	var bucket = bf.bucket
 	var bits uint = 0
 	var n=len(bucket)
