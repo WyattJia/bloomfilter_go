@@ -2,8 +2,11 @@ package bloomfilter
 
 import (
 	"fmt"
-	_ "hash"
-	_ "hash/fnv"
+	"hash/fnv"
+
+	//_ "hash"
+	//"hash/fnv"
+	//_ "hash/fnv"
 	"math"
 )
 
@@ -66,9 +69,25 @@ func popcnt (v) {
 	fmt.Printf(v)
 }
 
-func fnv_1a (v, seed) {
-	fmt.Printf(v)
-	fmt.Printf(seed)
+
+
+
+
+func fnv_1a (v string, seed uint) {
+
+
+	// Although golang officially has its own fnv library,
+	// I still implemented it manually for practice。
+	var a uint = 2166136261 ^ seed
+	var i = 0
+	for  n = len(v); i < n; i++ {
+		var c = ([]rune(v))[i]
+		var	d = c & 0xff00
+
+
+	}
+	//return a
+
 }
 
 func fnv_multiply(a) float64 {
