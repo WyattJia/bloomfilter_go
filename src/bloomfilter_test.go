@@ -2,6 +2,7 @@ package bloomfilter
 
 import (
 	"math/rand"
+	"sort"
 	"testing"
 )
 
@@ -62,6 +63,26 @@ func BenchmarkTest(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		bf.Test(RandomString())
+	}
+}
+
+func use(interface{}) {}
+
+func BenchmarkBinarySearch(b *testing.B) {
+	var strings []string
+	for i := 0; i < SampleSize; i++ {
+		item := RandomString()
+		strings = append(strings, item)
+	}
+
+	// Sort by byte order
+	sort.Strings(strings)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		item := RandomString()
+		use(sort.SearchStrings(strings, item))
 	}
 }
 
