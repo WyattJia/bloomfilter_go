@@ -53,3 +53,14 @@ func BenchmarkAdd(b *testing.B) {
 		bf.Add(RandomString())
 	}
 }
+
+func BenchmarkTest(b *testing.B) {
+	bf := New(memberSize, DefaultHashFunctions)
+	for i := 0; i < b.N; i++ {
+		bf.Add(randomBytes(10))
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		bf.Test(randomBytes(10))
+	}
+}
