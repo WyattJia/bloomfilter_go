@@ -17,6 +17,7 @@ type Interface interface {
 
 type BloomFilter struct {
 	arrayBuffer []bool
+	_locations  []uint
 	m 			uint
 	k           uint
 	n           uint
@@ -32,22 +33,36 @@ func New(size uint, k uint) BloomFilter {
 	kbytes = 1 << uint(kbytes)
 	var arrayBuffer = make([]bool, uint(kbytes) * k)
 	//var bucket = [uint(n)]int{}
+	var _locations = make([]uint, k)
 	return BloomFilter{
 		arrayBuffer: arrayBuffer,
+		_locations:  _locations,
 		m:           size,
 		k:           k, // we have 3 hash functions for now
 		n:           uint(0),
+		v:           0,
 	}
 }
 
-func (bf BloomFilter) locations(v string) float64 {
+func (bf BloomFilter) locations(v string) []uint {
 	
-	//var k = bf.k
-	//var m = bf.m
-	//var a = fnv_1a(v)
-	//var b = fnv_1a(v, 1576284489)
-	//
-	//return
+	var k = bf.k
+	var m = bf.m
+	var r = bf._locations
+
+	var a = fnv_1a(v, 0)
+	var b = fnv_1a(v, 1576284489)
+	var x = a % m
+
+	for i = 0; i < k; i++ {
+		if x < 0 {
+			r[i] = x + m
+		} else {
+			r[i] = x
+		}
+		x = (x + b) % m
+	}
+	return r
 }
 
 func (bf BloomFilter) add(v) float64 {
@@ -70,9 +85,6 @@ func popcnt (uint v) uint {
 	v = (v & 0x33333333) + ((v >> 2) & 0x33333333)
 	return ((v + (v >> 4) & 0xf0f0f0f) * 0x1010101) >> 24
 }
-
-
-
 
 
 func fnv_1a (v string, seed uint) uint {
