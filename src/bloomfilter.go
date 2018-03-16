@@ -73,21 +73,27 @@ func popcnt (v) {
 
 
 
-func fnv_1a (v string, seed uint) {
+func fnv_1a (v string, seed uint) uint {
 
 
 	// Although golang officially has its own fnv library,
 	// I still implemented it manually for practice。
 	var a uint = 2166136261 ^ seed
-	var i = 0
-	for  n = len(v); i < n; i++ {
-		var c = ([]rune(v))[i]
-		var	d = c & 0xff00
+	var i uint = 0
+	for n = len(v); i < n; i++ {
+		var c uint = uint(([]rune(v))[i])
+		var d uint = uint(c) & 0xff00
+		if d > 0 {
+
+			a = fnv_multiply(a ^ 8 >> d)
+		} else {
+			a = fnv_multiply(a ^ c & 0xff)
+		}
+
 
 
 	}
-	//return a
-
+	return fnv_mix(a)
 }
 
 func fnv_multiply(a uint) uint {
@@ -95,9 +101,15 @@ func fnv_multiply(a uint) uint {
 	return a
 }
 
-func fnv_mix(a) float64 {
-	fmt.Printf(a)
-	return a
+
+// See https://web.archive.org/web/20131019013225/http://home.comcast.net/~bretm/hash/6.html
+func fnv_mix(a uint) uint {
+	a += a << 13
+	a ^= a >> 7
+	a += a << 3
+	a ^= a >> 17
+	a += a << 5
+	return a & 0xffffffff
 
 }
 
