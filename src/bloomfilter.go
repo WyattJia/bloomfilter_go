@@ -24,10 +24,11 @@ type BloomFilter struct {
 func New(size uint, k uint) *BloomFilter {
 
 	var n = Ceil(float64(size) / 32)
-	var kbytes = Ceil(Log(Ceil(Log(float64(size)) /Ln2/ 8)) / Ln2)
-	kbytes = 1 << uint(kbytes)
+	var kbyte = Ceil(Log(Ceil(Log(float64(size)) /Ln2/ 8)) / Ln2)
+	var i uint = 1
+	var kbytes = i << uint(kbyte)
 	var arrayBuffer = make([]bool, uint(kbytes) * k)
-	var bucket = make([]uint, n)
+	var bucket = make([]uint, int(n))
 	var _locations = make([]uint, k)
 	return &BloomFilter{
 		arrayBuffer: arrayBuffer,
