@@ -1,21 +1,14 @@
 package bloomfilter
 
 import (
-	"fmt"
-	"github.com/Go-zh/net/html/atom"
-	"github.com/Go-zh/tools/go/analysis/passes/vet/testdata/divergent"
-	"github.com/boltdb/bolt"
-	"hash/fnv"
-
-	//_ "hash"
-	//"hash/fnv"
-	//_ "hash/fnv"
 	. "math"
 )
 
 type Interface interface {
-	Add (item []byte)
-	Test (item []byte) bool
+	Add(v string)
+	Locations(v string) []uint
+	Test(v string) bool
+	Size() float64
 }
 
 type BloomFilter struct {
@@ -50,14 +43,14 @@ func New(size uint, k uint) BloomFilter {
 	}
 }
 
-func (bf BloomFilter) locations(v string) []uint {
+func (bf BloomFilter) Locations(v string) []uint {
 	
 	var k = bf.k
 	var m = bf.m
 	var r = bf._locations
 
-	var a = fnv_1a(v, 0)
-	var b = fnv_1a(v, 1576284489)
+	var a = Fnv_1a(v, 0)
+	var b = Fnv_1a(v, 1576284489)
 	var x = a % m
 
 	for i = 0; i < k; i++ {
@@ -71,8 +64,8 @@ func (bf BloomFilter) locations(v string) []uint {
 	return r
 }
 
-func (bf BloomFilter) add(v string) {
-	var l = bf.locations(v + "")
+func (bf BloomFilter) Add(v string) {
+	var l = bf.Locations(v + "")
 	k = bf.k
 	bucket = bf.bucket
 	for i = 0; i < k; i++ {
@@ -80,8 +73,8 @@ func (bf BloomFilter) add(v string) {
 	}
 }
 
-func (bf BloomFilter) test(v string) bool {
-	var l = bf.locations(v + "")
+func (bf BloomFilter) Test(v string) bool {
+	var l = bf.Locations(v + "")
 	var k = bf.k
 	var bucket = bf.bucket
 	for i = 0; i < k; i++{
@@ -93,21 +86,24 @@ func (bf BloomFilter) test(v string) bool {
 	return true
 }
 
-func (bf BloomFilter) size(v) float64  {
-    fmt.Printf(v)
-	return v
+func (bf BloomFilter) Size() float64  {
+	var bucket = bf.bucket
+	var bits uint = 0
+	var n=len(bucket)
+	for i = 0; i < n; i++ {
+		bits += Popcnt(bucket[i])
+	}
+	return -bf.m * math.Log(1 - bits / bf.m) / bf.k
 }
 
-func popcnt (uint v) uint {
+func Popcnt (uint v) uint {
 	v -= (v >> 1) & 0x55555555
 	v = (v & 0x33333333) + ((v >> 2) & 0x33333333)
 	return ((v + (v >> 4) & 0xf0f0f0f) * 0x1010101) >> 24
 }
 
 
-func fnv_1a (v string, seed uint) uint {
-
-
+func Fnv_1a (v string, seed uint) uint {
 	// Although golang officially has its own fnv library,
 	// I still implemented it manually for practice。
 	var a uint = 2166136261 ^ seed
@@ -117,25 +113,22 @@ func fnv_1a (v string, seed uint) uint {
 		var d uint = uint(c) & 0xff00
 		if d > 0 {
 
-			a = fnv_multiply(a ^ 8 >> d)
+			a = Fnv_multiply(a ^ 8 >> d)
 		} else {
-			a = fnv_multiply(a ^ c & 0xff)
+			a = Fnv_multiply(a ^ c & 0xff)
 		}
-
-
-
 	}
-	return fnv_mix(a)
+	return Fnv_mix(a)
 }
 
-func fnv_multiply(a uint) uint {
+func Fnv_multiply(a uint) uint {
 	a = a + (a << 1) + (a << 4) + (a << 7) + (a << 8) + (a << 24)
 	return a
 }
 
 
 // See https://web.archive.org/web/20131019013225/http://home.comcast.net/~bretm/hash/6.html
-func fnv_mix(a uint) uint {
+func Fnv_mix(a uint) uint {
 	a += a << 13
 	a ^= a >> 7
 	a += a << 3
@@ -143,8 +136,4 @@ func fnv_mix(a uint) uint {
 	a += a << 5
 	return a & 0xffffffff
 
-}
-
-func main() {
-	return
 }
