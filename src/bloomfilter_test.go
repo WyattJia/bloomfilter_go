@@ -7,14 +7,13 @@ import (
 )
 
 // 100 Million
-var MemberSize uint = 100000000
+var MemberSize uint64 = 100000000
 
 // 100 Thousand
 var SampleSize int = 100000
 
 //the number of hashing functions
 var DefaultHashFunctions uint = 3
-
 
 func RandomBytes(size int) []byte {
 	b := make([]byte, size)
@@ -26,21 +25,20 @@ func RandomString() string {
 	return string(RandomBytes(10))
 }
 
-
 func TestExistance(t *testing.T) {
-	bf := New(MemberSize, DefaultHashFunctions)
-
+	bf := NewBloom(MemberSize, DefaultHashFunctions)
+	
 	for i := 0; i < SampleSize; i++ {
 		item := RandomString()
 		bf.Add(item)
-
+		
 		if bf.Test(item) != true {
 			t.Errorf("'%q' not found", item)
 		}
-
+		
 		// Now lets create some items that don't exist
 		item2 := RandomString()
-
+		
 		// Test that item does NOT exist
 		if bf.Test(item2) == true {
 			t.Errorf("'%q' should not be found", item2)
@@ -49,14 +47,14 @@ func TestExistance(t *testing.T) {
 }
 
 func BenchmarkAdd(b *testing.B) {
-	bf := New(MemberSize, DefaultHashFunctions)
+	bf := NewBloom(MemberSize, DefaultHashFunctions)
 	for i := 0; i < b.N; i++ {
 		bf.Add(RandomString())
 	}
 }
 
 func BenchmarkTest(b *testing.B) {
-	bf := New(MemberSize, DefaultHashFunctions)
+	bf := NewBloom(MemberSize, DefaultHashFunctions)
 	for i := 0; i < b.N; i++ {
 		bf.Add(RandomString())
 	}
@@ -74,12 +72,12 @@ func BenchmarkBinarySearch(b *testing.B) {
 		item := RandomString()
 		strings = append(strings, item)
 	}
-
+	
 	// Sort by byte order
 	sort.Strings(strings)
-
+	
 	b.ResetTimer()
-
+	
 	for i := 0; i < b.N; i++ {
 		item := RandomString()
 		use(sort.SearchStrings(strings, item))
