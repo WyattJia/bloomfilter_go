@@ -1,7 +1,7 @@
 package bloomfilter
 
 import (
-	. "math"
+	 "math"
 )
 
 type Interface interface {
@@ -23,8 +23,8 @@ type BloomFilter struct {
 
 func New(size uint, k uint) *BloomFilter {
 
-	var n = Ceil(float64(size) / 32)
-	var kbyte = Ceil(Log(Ceil(Log(float64(size)) /Ln2/ 8)) / Ln2)
+	var n = math.Ceil(float64(size) / 32)
+	var kbyte = math.Ceil(math.Log(math.Ceil(math.Log(float64(size)) /math.Ln2/ 8)) / math.Ln2)
 	var i uint = 1
 	var kbytes = i << uint(kbyte)
 	var arrayBuffer = make([]bool, uint(kbytes) * k)
@@ -68,7 +68,7 @@ func (bf *BloomFilter) Add(v string) {
 	var bucket = bf.bucket
 	var i uint = 0
 	for i = 0; i < k; i++ {
-		bucket[int(Floor(float64(l[i]/32)))] |= 1 << (l[i] % 32)
+		bucket[int(math.Floor(float64(l[i]/32)))] |= 1 << (l[i] % 32)
 	}
 }
 
@@ -79,7 +79,7 @@ func (bf *BloomFilter) Test(v string) bool {
 	var i uint = 0
 	for ; i < k; i++{
 		var b = l[i]
-		if (bucket[int(Floor(float64(b/32)))] & (1 << (b % 32))) == 0 {
+		if (bucket[int(math.Floor(float64(b/32)))] & (1 << (b % 32))) == 0 {
 			return false
 		}
 	}
@@ -94,7 +94,7 @@ func (bf *BloomFilter) Size() float64  {
 	for i := 0; i < n; i++ {
 		bits += PopCount(bucket[i])
 	}
-	result = -(float64(bf.m) * Log(float64(1 - bits) / float64(bf.m)) / float64(bf.k))
+	result = -(float64(bf.m) * math.Log(float64(1 - bits) / float64(bf.m)) / float64(bf.k))
 	return result
 }
 
